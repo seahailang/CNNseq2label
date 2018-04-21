@@ -1,0 +1,7 @@
+.ipy*/
+train2/
+glove.*
+*.zip
+*.pyc
+*.ipynb
+.idea/
