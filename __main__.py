@@ -22,7 +22,7 @@ from sklearn.model_selection import train_test_split
 from model import Model
 import utils
 import datasets
-import config
+from config import Config
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -45,6 +45,26 @@ def train(config):
     model = Model(iterator=iterator,matrix=matrix,config=config)
 
     logits = model.build_graph()
+    losses = model.loss()
+    grads_and_vars = model.compute_gradients(losses,None)
+    run_op = model.apply_gradients(grads_and_vars,model.global_step)
+    init = tf.global_variables_initializer()
+    saver = tf.train.Saver()
+    with tf.Session() as sess:
+        sess.run(init)
+        train_handle = sess.run(train_iterator.string_handle())
+        val_handl = sess.run(val_iterator.string_handle())
+        ckpt = tf.train.latest_checkpoint(model.ckpt)
+        if ckpt:
+            saver.restore(sess,ckpt)
+        for i in range(model.max_train_steps):
+            g,l,_ = sess.run([model.global_step,losses,run_op],feed_dict={holder:train_handle})
+            if g%model.val_steps==0:
+                print(g,l)
+                saver.save(sess,model.ckpt,g)
+
+
 
 if __name__ == '__main__':
-    pass
+    config = Config()
+    train(config)

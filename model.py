@@ -23,6 +23,10 @@ FLAGS = tf.app.flags.FLAGS
 
 class Model(object):
     def __init__(self,iterator,matrix,config):
+        self.max_train_steps = config.max_train_steps
+        self.val_steps = config.val_steps
+        self.global_step = tf.train.get_or_create_global_step()
+        self.ckpt = config.ckpt
         self.embedding_matrix = tf.get_variable('embedding_matrix',initializer=tf.constant_initializer(matrix))
         self.seqs,self.seq_lens,self.labels = iterator.get_next()
         self.learning_rate = config.learning_rate
@@ -65,7 +69,7 @@ class Model(object):
         self.losses = losses
         return losses
 
-    def compute_gradients(self,loss,val_list):
+    def compute_gradients(self,loss,val_list=None):
         return self.optimizer.compute_gradients(loss,val_list)
 
     def apply_gradients(self,grads_and_vars,global_step=None):
