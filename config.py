@@ -25,8 +25,8 @@ class Config(object):
         self.ckpt = self.root_dir+'ckpt/'
         self.data_dir = self.root_dir+'train2/'
         self.optimizer = 'adam'
-        self.max_len = 500
-        self.batch_size = 16
+        self.max_len = 2000
+        self.batch_size = 8
         self.learning_rate = 0.001
         self.mode = 'train'
 

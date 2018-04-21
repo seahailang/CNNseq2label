@@ -26,7 +26,7 @@ def make_train_data(seq,label,seq_len):
     datasets2 = tf.data.Dataset.from_tensor_slices(label)
     datasets3 = tf.data.Dataset.from_tensor_slices(seq_len)
 
-    dataset = tf.data.Dataset.zip([datasets1,datasets2,datasets3])
+    dataset = tf.data.Dataset.zip((datasets1,datasets2,datasets3))
     return dataset
 
 if __name__ == '__main__':

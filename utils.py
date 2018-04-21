@@ -100,14 +100,22 @@ def texts2seqs(datas,word_ids,max_len=300):
     return np.array(new_data),np.array(seq_len)
 
 def load_data(config):
-    datas, labels, vocabulary, l_vocabulary = preprocess(config.data_dir)
-    l_vocabulary.add('C')
-    word_ids, matrixs = load_vector(vocabulary)
-    label_ids = {}
-    for i, label in enumerate(sorted(l_vocabulary)):
-        label_ids[label] = i
-    seq, seq_len = texts2seqs(datas=datas, word_ids=word_ids, max_len=config.max_len)
-    seq_label, _ = texts2seqs(datas=labels, word_ids=label_ids, max_len=config.max_len)
+    if os.path.exists('./data.npz'):
+        npz = np.load('./data.npz')
+        seq = npz['sequence']
+        seq_label = npz['label']
+        seq_len = npz['length']
+        matrixs = npz['matrix']
+    else:
+        datas, labels, vocabulary, l_vocabulary = preprocess(config.data_dir)
+        l_vocabulary.add('C')
+        word_ids, matrixs = load_vector(vocabulary)
+        label_ids = {}
+        for i, label in enumerate(sorted(l_vocabulary)):
+            label_ids[label] = i
+        seq, seq_len = texts2seqs(datas=datas, word_ids=word_ids, max_len=config.max_len)
+        seq_label, _ = texts2seqs(datas=labels, word_ids=label_ids, max_len=config.max_len)
+        np.savez('./data.npz',sequence = seq,label = seq_label,length = seq_len,matrix = matrixs)
     return seq,seq_label,seq_len,matrixs
 
 

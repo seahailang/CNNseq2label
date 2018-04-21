@@ -27,8 +27,11 @@ class Model(object):
         self.val_steps = config.val_steps
         self.global_step = tf.train.get_or_create_global_step()
         self.ckpt = config.ckpt
-        self.embedding_matrix = tf.get_variable('embedding_matrix',initializer=tf.constant_initializer(matrix))
-        self.seqs,self.seq_lens,self.labels = iterator.get_next()
+        self.embedding_matrix = tf.get_variable('embedding_matrix',
+                                                shape = matrix.shape,
+                                                initializer=tf.constant_initializer(matrix))
+        self.seqs,self.labels,self.seq_lens = iterator.get_next()
+        self.labels = tf.one_hot(self.labels,depth=4)
         self.learning_rate = config.learning_rate
         self.num_class = 4
         self.max_len = config.max_len
@@ -62,9 +65,11 @@ class Model(object):
 
 
     def loss(self):
-        losses = tf.nn.softmax_cross_entropy_with_logits(labels=self.labels,logits=self.logits)
+
         mask = tf.sequence_mask(self.seq_lens,maxlen=self.max_len)
-        losses = tf.boolean_mask(losses,mask)
+        labels = tf.boolean_mask(self.labels,mask)
+        logits = tf.boolean_mask(self.logits,mask)
+        losses = tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits)
         losses = tf.reduce_mean(losses)
         self.losses = losses
         return losses

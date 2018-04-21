@@ -29,11 +29,12 @@ FLAGS = tf.app.flags.FLAGS
 
 def train(config):
     seq,label,seqlen,matrix = utils.load_data(config)
-    train_seq,train_label,train_seq_len,\
-    val_seq,val_label,val_seq_len =train_test_split(seq,label,seqlen,train_size=0.8,random_state=1234)
+    train_seq,val_seq,train_label,val_label,train_seq_len,\
+    val_seq_len =train_test_split(seq,label,seqlen,train_size=0.8,random_state=1234)
     train_data = (train_seq,train_label,train_seq_len)
     val_data = (val_seq,val_label,val_seq_len)
     train_dataset = datasets.make_train_data(*train_data)
+    train_dataset = train_dataset.repeat().batch(config.batch_size)
     val_dataset = datasets.make_train_data(*val_data)
     train_iterator = train_dataset.make_one_shot_iterator()
     val_iterator = val_dataset.make_one_shot_iterator()
