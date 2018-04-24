@@ -21,7 +21,7 @@ class Config(object):
     def __init__(self):
         self.root_dir = './'
         self.max_train_steps = 100000
-        self.val_steps = 100
+        self.val_steps = 10
         self.ckpt = self.root_dir+'ckpt/'
         self.data_dir = self.root_dir+'train2/'
         self.optimizer = 'adam'
@@ -29,6 +29,7 @@ class Config(object):
         self.batch_size = 8
         self.learning_rate = 0.001
         self.mode = 'train'
+        self.num_class = 4
 
 FLAGS = tf.app.flags.FLAGS
 

@@ -5,3 +5,6 @@ glove.*
 *.pyc
 *.ipynb
 .idea/
+ckpt/
+--pycache--/
+*.npz

@@ -71,10 +71,10 @@ def preprocess(data_dir ='./train2'):
 def load_vector(vocabulary,vector_dir = './glove.6B.200d.txt',dims=200):
     word_ids= {}
     for vocab in vocabulary:
-        word_ids[vocab] = 0
-    matrixs = [np.zeros((dims,))]
+        word_ids[vocab] = 1
+    matrixs = [np.zeros((dims,)),np.zeros((dims,))]
     with open(vector_dir,'r',encoding='utf-8') as file:
-        i = 1
+        i = 2
         for line in file.readlines():
             word = line.split(' ')[0]
             arr = np.array(line.split(' ')[1:]).astype(np.float32)
@@ -126,10 +126,20 @@ def dot_attention(A,B):
     new_A = tf.matmul(sim,B)
     return new_A
 
-def conject_dot_attention(A,B,W):
+def conject_dot_attention(A,B,W,seq_len):
     _W = tf.matmul(W,tf.transpose(W,[1,0]))
     B_T = tf.transpose(B,[0,2,1])
-    sim = tf.nn.softmax(A@_W@B_T)
+    sim = tf.tensordot(A,_W,[-1,0])
+    sim = tf.matmul(sim,B_T)
+    seq_mask = tf.sequence_mask(seq_len,int(A.shape[1]))
+    seq_ = tf.cast(seq_mask,tf.float32)
+    seq_ = (seq_-1)*1e-11
+    seq_ = tf.expand_dims(seq_,axis=-1)
+    seq_ = tf.tile(seq_,[1,1,int(A.shape[1])])
+    # sim = tf.slice(sim, begin=[0, 0, 0], size=[-1, -1, seq_len])
+    sim = tf.nn.softmax(sim+seq_)
+
+    B = tf.slice(B,begin=[0,0,0],size=[-1,seq_len,-1])
     new_A = sim@B
     return new_A
 
